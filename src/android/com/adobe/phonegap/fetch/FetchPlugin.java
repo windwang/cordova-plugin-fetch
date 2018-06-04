@@ -2,13 +2,7 @@ package com.adobe.phonegap.fetch;
 
 import android.util.Log;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -18,6 +12,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class FetchPlugin extends CordovaPlugin {
 
@@ -88,14 +91,13 @@ public class FetchPlugin extends CordovaPlugin {
 
                 mClient.newCall(request).enqueue(new Callback() {
                     @Override
-                    public void onFailure(Request request, IOException throwable) {
-                        throwable.printStackTrace();
-                        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, throwable.getMessage()));
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, e.getMessage()));
                     }
 
                     @Override
-                    public void onResponse(Response response) throws IOException {
-
+                    public void onResponse(Call call, Response response) throws IOException {
                         JSONObject result = new JSONObject();
                         try {
                             Headers responseHeaders = response.headers();
@@ -111,7 +113,7 @@ public class FetchPlugin extends CordovaPlugin {
                             result.put("headers", allHeaders);
                             result.put("statusText", response.body().string());
                             result.put("status", response.code());
-                            result.put("url", response.request().urlString());
+                            result.put("url", response.request().url().toString());
 
                         } catch (Exception e) {
                             e.printStackTrace();
